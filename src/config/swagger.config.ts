@@ -72,15 +72,15 @@ const swaggerDefinition = {
           isDefault: { type: "boolean", example: true },
         },
       },
-      PaymentMethodSchema: {
-        type: "object",
-        required: ["provider", "accountNumberOrLast4"],
-        properties: {
-          provider: { type: "string", example: "Visa" },
-          accountNumberOrLast4: { type: "string", example: "4242" },
-          isDefault: { type: "boolean", example: true },
-        },
-      },
+      // PaymentMethodSchema: {
+      //   type: "object",
+      //   required: ["provider", "accountNumberOrLast4"],
+      //   properties: {
+      //     provider: { type: "string", example: "Visa" },
+      //     accountNumberOrLast4: { type: "string", example: "4242" },
+      //     isDefault: { type: "boolean", example: true },
+      //   },
+      // },
       ProductSchema: {
         type: "object",
         required: ["title", "description", "brand", "category", "price", "SKU", "stock", "thumbnail"],
@@ -89,7 +89,6 @@ const swaggerDefinition = {
           description: { type: "string", example: "High-fidelity audio with active noise cancellation." },
           brand: { type: "string", example: "AudioPro" },
           category: { type: "string", example: "66a01234567890abcdef1234" },
-          subCategory: { type: "string", example: "66a01234567890abcdef5678" },
           price: { type: "number", example: 199.99 },
           salePrice: { type: "number", example: 149.99 },
           discount: { type: "number", example: 25 },
@@ -113,29 +112,29 @@ const swaggerDefinition = {
           status: { type: "string", enum: ["active", "inactive"], example: "active" },
         },
       },
-      CouponSchema: {
-        type: "object",
-        required: ["code", "discountType", "discountValue", "expiryDate"],
-        properties: {
-          code: { type: "string", example: "SUMMER2026" },
-          discountType: { type: "string", enum: ["percentage", "fixed"], example: "percentage" },
-          discountValue: { type: "number", example: 20 },
-          minimumOrder: { type: "number", example: 50 },
-          maximumDiscount: { type: "number", example: 100 },
-          expiryDate: { type: "string", format: "date-time", example: "2026-12-31T23:59:59.000Z" },
-          usageLimit: { type: "number", example: 500 },
-        },
-      },
-      ReviewSchema: {
-        type: "object",
-        required: ["productId", "rating", "comment"],
-        properties: {
-          productId: { type: "string", example: "66a01234567890abcdef1234" },
-          rating: { type: "number", minimum: 1, maximum: 5, example: 5 },
-          comment: { type: "string", example: "Outstanding build quality and sound experience!" },
-          images: { type: "array", items: { type: "string" }, example: ["https://example.com/review.jpg"] },
-        },
-      },
+      // CouponSchema: {
+      //   type: "object",
+      //   required: ["code", "discountType", "discountValue", "expiryDate"],
+      //   properties: {
+      //     code: { type: "string", example: "SUMMER2026" },
+      //     discountType: { type: "string", enum: ["percentage", "fixed"], example: "percentage" },
+      //     discountValue: { type: "number", example: 20 },
+      //     minimumOrder: { type: "number", example: 50 },
+      //     maximumDiscount: { type: "number", example: 100 },
+      //     expiryDate: { type: "string", format: "date-time", example: "2026-12-31T23:59:59.000Z" },
+      //     usageLimit: { type: "number", example: 500 },
+      //   },
+      // },
+      // ReviewSchema: {
+      //   type: "object",
+      //   required: ["productId", "rating", "comment"],
+      //   properties: {
+      //     productId: { type: "string", example: "66a01234567890abcdef1234" },
+      //     rating: { type: "number", minimum: 1, maximum: 5, example: 5 },
+      //     comment: { type: "string", example: "Outstanding build quality and sound experience!" },
+      //     images: { type: "array", items: { type: "string" }, example: ["https://example.com/review.jpg"] },
+      //   },
+      // },
     },
   },
   tags: [
@@ -145,13 +144,13 @@ const swaggerDefinition = {
     { name: "Wishlist", description: "Customer Wishlist Operations" },
     { name: "Cart", description: "Shopping Cart Operations" },
     { name: "Orders", description: "Checkout & Customer Orders Lifecycle" },
-    { name: "Payments", description: "Payment Gateway Integration & Methods" },
+    // { name: "Payments", description: "Payment Gateway Integration & Methods" },
     { name: "Products Catalog", description: "Public Product Browsing & Filtering" },
     { name: "Categories Catalog", description: "Product Categories Browsing" },
-    { name: "Coupons", description: "Discount Coupons & Validation" },
-    { name: "Reviews", description: "Product Ratings & Customer Reviews" },
-    { name: "Returns", description: "Product Return Requests" },
-    { name: "Admin Dashboard & Management", description: "Admin Suite (Stats, Customer Moderation, Inventory, Orders, Reports, Notifications, Settings)" },
+    // { name: "Coupons", description: "Discount Coupons & Validation" },
+    // { name: "Reviews", description: "Product Ratings & Customer Reviews" },
+    // { name: "Returns", description: "Product Return Requests" },
+    // { name: "Admin Dashboard & Management", description: "Admin Suite (Stats, Customer Moderation, Inventory, Orders, Reports, Notifications, Settings)" },
   ],
   paths: {
     // AUTHENTICATION APIs
@@ -658,329 +657,329 @@ const swaggerDefinition = {
     },
 
     // COUPONS APIs
-    "/api/coupons/validate": {
-      post: {
-        summary: "Validate Coupon Code",
-        tags: ["Coupons"],
-        security: [{ BearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["code", "cartTotal"],
-                properties: {
-                  code: { type: "string", example: "SUMMER2026" },
-                  cartTotal: { type: "number", example: 150 },
-                },
-              },
-            },
-          },
-        },
-        responses: { "200": { description: "Coupon validity & discount details" } },
-      },
-    },
-    "/api/coupons": {
-      get: {
-        summary: "Get All Coupons (Admin)",
-        tags: ["Coupons"],
-        security: [{ BearerAuth: [] }],
-        responses: { "200": { description: "List of coupons" } },
-      },
-      post: {
-        summary: "Create Coupon (Admin)",
-        tags: ["Coupons"],
-        security: [{ BearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: { "application/json": { schema: { $ref: "#/components/schemas/CouponSchema" } } },
-        },
-        responses: { "201": { description: "Coupon created" } },
-      },
-    },
-    "/api/coupons/{id}": {
-      put: {
-        summary: "Update Coupon (Admin)",
-        tags: ["Coupons"],
-        security: [{ BearerAuth: [] }],
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        requestBody: { content: { "application/json": { schema: { $ref: "#/components/schemas/CouponSchema" } } } },
-        responses: { "200": { description: "Coupon updated" } },
-      },
-      delete: {
-        summary: "Delete Coupon (Admin)",
-        tags: ["Coupons"],
-        security: [{ BearerAuth: [] }],
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        responses: { "200": { description: "Coupon deleted" } },
-      },
-    },
+    // "/api/coupons/validate": {
+    //   post: {
+    //     summary: "Validate Coupon Code",
+    //     tags: ["Coupons"],
+    //     security: [{ BearerAuth: [] }],
+    //     requestBody: {
+    //       required: true,
+    //       content: {
+    //         "application/json": {
+    //           schema: {
+    //             type: "object",
+    //             required: ["code", "cartTotal"],
+    //             properties: {
+    //               code: { type: "string", example: "SUMMER2026" },
+    //               cartTotal: { type: "number", example: 150 },
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     responses: { "200": { description: "Coupon validity & discount details" } },
+    //   },
+    // },
+    // "/api/coupons": {
+    //   get: {
+    //     summary: "Get All Coupons (Admin)",
+    //     tags: ["Coupons"],
+    //     security: [{ BearerAuth: [] }],
+    //     responses: { "200": { description: "List of coupons" } },
+    //   },
+    //   post: {
+    //     summary: "Create Coupon (Admin)",
+    //     tags: ["Coupons"],
+    //     security: [{ BearerAuth: [] }],
+    //     requestBody: {
+    //       required: true,
+    //       content: { "application/json": { schema: { $ref: "#/components/schemas/CouponSchema" } } },
+    //     },
+    //     responses: { "201": { description: "Coupon created" } },
+    //   },
+    // },
+    // "/api/coupons/{id}": {
+    //   put: {
+    //     summary: "Update Coupon (Admin)",
+    //     tags: ["Coupons"],
+    //     security: [{ BearerAuth: [] }],
+    //     parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+    //     requestBody: { content: { "application/json": { schema: { $ref: "#/components/schemas/CouponSchema" } } } },
+    //     responses: { "200": { description: "Coupon updated" } },
+    //   },
+    //   delete: {
+    //     summary: "Delete Coupon (Admin)",
+    //     tags: ["Coupons"],
+    //     security: [{ BearerAuth: [] }],
+    //     parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+    //     responses: { "200": { description: "Coupon deleted" } },
+    //   },
+    // },
 
     // PAYMENTS APIs
-    "/api/payments/process": {
-      post: {
-        summary: "Process Payment",
-        tags: ["Payments"],
-        security: [{ BearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["orderId", "paymentGateway", "amount", "transactionId"],
-                properties: {
-                  orderId: { type: "string", example: "66a01234567890abcdef1234" },
-                  paymentGateway: { type: "string", example: "Stripe" },
-                  amount: { type: "number", example: 149.99 },
-                  transactionId: { type: "string", example: "txn_123456789" },
-                },
-              },
-            },
-          },
-        },
-        responses: { "201": { description: "Payment recorded successfully" } },
-      },
-    },
-    "/api/payments/history": {
-      get: {
-        summary: "Get Payment History",
-        tags: ["Payments"],
-        security: [{ BearerAuth: [] }],
-        responses: { "200": { description: "List of transactions" } },
-      },
-    },
-    "/api/payments/methods": {
-      get: {
-        summary: "Get Saved Payment Methods",
-        tags: ["Payments"],
-        security: [{ BearerAuth: [] }],
-        responses: { "200": { description: "Saved payment cards/accounts" } },
-      },
-      post: {
-        summary: "Save Payment Method",
-        tags: ["Payments"],
-        security: [{ BearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: { "application/json": { schema: { $ref: "#/components/schemas/PaymentMethodSchema" } } },
-        },
-        responses: { "201": { description: "Payment method saved" } },
-      },
-    },
-    "/api/payments/methods/{id}": {
-      delete: {
-        summary: "Delete Payment Method",
-        tags: ["Payments"],
-        security: [{ BearerAuth: [] }],
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        responses: { "200": { description: "Payment method deleted" } },
-      },
-    },
+    // "/api/payments/process": {
+    //   post: {
+    //     summary: "Process Payment",
+    //     tags: ["Payments"],
+    //     security: [{ BearerAuth: [] }],
+    //     requestBody: {
+    //       required: true,
+    //       content: {
+    //         "application/json": {
+    //           schema: {
+    //             type: "object",
+    //             required: ["orderId", "paymentGateway", "amount", "transactionId"],
+    //             properties: {
+    //               orderId: { type: "string", example: "66a01234567890abcdef1234" },
+    //               paymentGateway: { type: "string", example: "Stripe" },
+    //               amount: { type: "number", example: 149.99 },
+    //               transactionId: { type: "string", example: "txn_123456789" },
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     responses: { "201": { description: "Payment recorded successfully" } },
+    //   },
+    // },
+    // "/api/payments/history": {
+    //   get: {
+    //     summary: "Get Payment History",
+    //     tags: ["Payments"],
+    //     security: [{ BearerAuth: [] }],
+    //     responses: { "200": { description: "List of transactions" } },
+    //   },
+    // },
+    // "/api/payments/methods": {
+    //   get: {
+    //     summary: "Get Saved Payment Methods",
+    //     tags: ["Payments"],
+    //     security: [{ BearerAuth: [] }],
+    //     responses: { "200": { description: "Saved payment cards/accounts" } },
+    //   },
+    //   post: {
+    //     summary: "Save Payment Method",
+    //     tags: ["Payments"],
+    //     security: [{ BearerAuth: [] }],
+    //     requestBody: {
+    //       required: true,
+    //       content: { "application/json": { schema: { $ref: "#/components/schemas/PaymentMethodSchema" } } },
+    //     },
+    //     responses: { "201": { description: "Payment method saved" } },
+    //   },
+    // },
+    // "/api/payments/methods/{id}": {
+    //   delete: {
+    //     summary: "Delete Payment Method",
+    //     tags: ["Payments"],
+    //     security: [{ BearerAuth: [] }],
+    //     parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+    //     responses: { "200": { description: "Payment method deleted" } },
+    //   },
+    // },
 
     // REVIEWS APIs
-    "/api/reviews/product/{productId}": {
-      get: {
-        summary: "Get Reviews for Product",
-        tags: ["Reviews"],
-        parameters: [{ name: "productId", in: "path", required: true, schema: { type: "string" } }],
-        responses: { "200": { description: "List of product reviews" } },
-      },
-    },
-    "/api/reviews": {
-      post: {
-        summary: "Add Product Review",
-        tags: ["Reviews"],
-        security: [{ BearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: { "application/json": { schema: { $ref: "#/components/schemas/ReviewSchema" } } },
-        },
-        responses: { "201": { description: "Review added and rating updated" } },
-      },
-    },
-    "/api/reviews/{id}": {
-      delete: {
-        summary: "Delete Review (Admin)",
-        tags: ["Reviews"],
-        security: [{ BearerAuth: [] }],
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        responses: { "200": { description: "Review deleted" } },
-      },
-    },
+    // "/api/reviews/product/{productId}": {
+    //   get: {
+    //     summary: "Get Reviews for Product",
+    //     tags: ["Reviews"],
+    //     parameters: [{ name: "productId", in: "path", required: true, schema: { type: "string" } }],
+    //     responses: { "200": { description: "List of product reviews" } },
+    //   },
+    // },
+    // "/api/reviews": {
+    //   post: {
+    //     summary: "Add Product Review",
+    //     tags: ["Reviews"],
+    //     security: [{ BearerAuth: [] }],
+    //     requestBody: {
+    //       required: true,
+    //       content: { "application/json": { schema: { $ref: "#/components/schemas/ReviewSchema" } } },
+    //     },
+    //     responses: { "201": { description: "Review added and rating updated" } },
+    //   },
+    // },
+    // "/api/reviews/{id}": {
+    //   delete: {
+    //     summary: "Delete Review (Admin)",
+    //     tags: ["Reviews"],
+    //     security: [{ BearerAuth: [] }],
+    //     parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+    //     responses: { "200": { description: "Review deleted" } },
+    //   },
+    // },
 
     // RETURNS APIs
-    "/api/returns": {
-      get: {
-        summary: "Get Product Returns",
-        tags: ["Returns"],
-        security: [{ BearerAuth: [] }],
-        responses: { "200": { description: "List of return requests" } },
-      },
-    },
-    "/api/returns/{id}/status": {
-      put: {
-        summary: "Update Return Request Status (Admin)",
-        tags: ["Returns"],
-        security: [{ BearerAuth: [] }],
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["status"],
-                properties: { status: { type: "string", enum: ["requested", "approved", "rejected", "completed"], example: "approved" } },
-              },
-            },
-          },
-        },
-        responses: { "200": { description: "Return status updated" } },
-      },
-    },
+    // "/api/returns": {
+    //   get: {
+    //     summary: "Get Product Returns",
+    //     tags: ["Returns"],
+    //     security: [{ BearerAuth: [] }],
+    //     responses: { "200": { description: "List of return requests" } },
+    //   },
+    // },
+    // "/api/returns/{id}/status": {
+    //   put: {
+    //     summary: "Update Return Request Status (Admin)",
+    //     tags: ["Returns"],
+    //     security: [{ BearerAuth: [] }],
+    //     parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+    //     requestBody: {
+    //       required: true,
+    //       content: {
+    //         "application/json": {
+    //           schema: {
+    //             type: "object",
+    //             required: ["status"],
+    //             properties: { status: { type: "string", enum: ["requested", "approved", "rejected", "completed"], example: "approved" } },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     responses: { "200": { description: "Return status updated" } },
+    //   },
+    // },
 
-    // ADMIN APIs
-    "/api/admin/dashboard": {
-      get: {
-        summary: "Get Admin Analytics Dashboard",
-        tags: ["Admin Dashboard & Management"],
-        security: [{ BearerAuth: [] }],
-        responses: { "200": { description: "Total revenue, orders, active customers, inventory status" } },
-      },
-    },
-    "/api/admin/customers": {
-      get: {
-        summary: "List Customers (Admin)",
-        tags: ["Admin Dashboard & Management"],
-        security: [{ BearerAuth: [] }],
-        parameters: [
-          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
-          { name: "limit", in: "query", schema: { type: "integer", default: 10 } },
-        ],
-        responses: { "200": { description: "Paginated customers list" } },
-      },
-    },
-    "/api/admin/customers/{id}/status": {
-      put: {
-        summary: "Block/Unblock Customer (Admin)",
-        tags: ["Admin Dashboard & Management"],
-        security: [{ BearerAuth: [] }],
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["status"],
-                properties: { status: { type: "string", enum: ["active", "blocked"], example: "blocked" } },
-              },
-            },
-          },
-        },
-        responses: { "200": { description: "Customer status updated" } },
-      },
-    },
-    "/api/admin/inventory/{productId}": {
-      put: {
-        summary: "Update Product Inventory Stock (Admin)",
-        tags: ["Admin Dashboard & Management"],
-        security: [{ BearerAuth: [] }],
-        parameters: [{ name: "productId", in: "path", required: true, schema: { type: "string" } }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["stock"],
-                properties: { stock: { type: "integer", example: 100 } },
-              },
-            },
-          },
-        },
-        responses: { "200": { description: "Stock updated" } },
-      },
-    },
-    "/api/admin/orders/{id}/status": {
-      put: {
-        summary: "Update Order Fulfillment Status (Admin)",
-        tags: ["Admin Dashboard & Management"],
-        security: [{ BearerAuth: [] }],
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["orderStatus"],
-                properties: {
-                  orderStatus: { type: "string", enum: ["Pending", "Confirmed", "Packed", "Shipped", "Delivered", "Cancelled", "Returned"], example: "Shipped" },
-                  trackingNumber: { type: "string", example: "TRK-987654321" },
-                },
-              },
-            },
-          },
-        },
-        responses: { "200": { description: "Order status updated" } },
-      },
-    },
-    "/api/admin/reports": {
-      get: {
-        summary: "Get Sales & Analytics Reports (Admin)",
-        tags: ["Admin Dashboard & Management"],
-        security: [{ BearerAuth: [] }],
-        responses: { "200": { description: "Sales analytics summary report" } },
-      },
-    },
-    "/api/admin/notifications/broadcast": {
-      post: {
-        summary: "Broadcast Push/In-App Notification (Admin)",
-        tags: ["Admin Dashboard & Management"],
-        security: [{ BearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["title", "message"],
-                properties: {
-                  title: { type: "string", example: "Flash Sale Alert!" },
-                  message: { type: "string", example: "50% off on all electronics today." },
-                  type: { type: "string", example: "promotional" },
-                },
-              },
-            },
-          },
-        },
-        responses: { "200": { description: "Notification broadcasted to all users" } },
-      },
-    },
-    "/api/admin/settings": {
-      get: {
-        summary: "Get Global App Settings (Admin)",
-        tags: ["Admin Dashboard & Management"],
-        security: [{ BearerAuth: [] }],
-        responses: { "200": { description: "App configurations" } },
-      },
-      put: {
-        summary: "Update Global App Settings (Admin)",
-        tags: ["Admin Dashboard & Management"],
-        security: [{ BearerAuth: [] }],
-        requestBody: {
-          content: {
-            "application/json": {
-              schema: { type: "object", properties: { freeShippingThreshold: { type: "number", example: 100 } } },
-            },
-          },
-        },
-        responses: { "200": { description: "Settings saved" } },
-      },
-    },
+    // // ADMIN APIs
+    // "/api/admin/dashboard": {
+    //   get: {
+    //     summary: "Get Admin Analytics Dashboard",
+    //     tags: ["Admin Dashboard & Management"],
+    //     security: [{ BearerAuth: [] }],
+    //     responses: { "200": { description: "Total revenue, orders, active customers, inventory status" } },
+    //   },
+    // },
+    // "/api/admin/customers": {
+    //   get: {
+    //     summary: "List Customers (Admin)",
+    //     tags: ["Admin Dashboard & Management"],
+    //     security: [{ BearerAuth: [] }],
+    //     parameters: [
+    //       { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+    //       { name: "limit", in: "query", schema: { type: "integer", default: 10 } },
+    //     ],
+    //     responses: { "200": { description: "Paginated customers list" } },
+    //   },
+    // },
+    // "/api/admin/customers/{id}/status": {
+    //   put: {
+    //     summary: "Block/Unblock Customer (Admin)",
+    //     tags: ["Admin Dashboard & Management"],
+    //     security: [{ BearerAuth: [] }],
+    //     parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+    //     requestBody: {
+    //       required: true,
+    //       content: {
+    //         "application/json": {
+    //           schema: {
+    //             type: "object",
+    //             required: ["status"],
+    //             properties: { status: { type: "string", enum: ["active", "blocked"], example: "blocked" } },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     responses: { "200": { description: "Customer status updated" } },
+    //   },
+    // },
+    // "/api/admin/inventory/{productId}": {
+    //   put: {
+    //     summary: "Update Product Inventory Stock (Admin)",
+    //     tags: ["Admin Dashboard & Management"],
+    //     security: [{ BearerAuth: [] }],
+    //     parameters: [{ name: "productId", in: "path", required: true, schema: { type: "string" } }],
+    //     requestBody: {
+    //       required: true,
+    //       content: {
+    //         "application/json": {
+    //           schema: {
+    //             type: "object",
+    //             required: ["stock"],
+    //             properties: { stock: { type: "integer", example: 100 } },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     responses: { "200": { description: "Stock updated" } },
+    //   },
+    // },
+    // "/api/admin/orders/{id}/status": {
+    //   put: {
+    //     summary: "Update Order Fulfillment Status (Admin)",
+    //     tags: ["Admin Dashboard & Management"],
+    //     security: [{ BearerAuth: [] }],
+    //     parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+    //     requestBody: {
+    //       required: true,
+    //       content: {
+    //         "application/json": {
+    //           schema: {
+    //             type: "object",
+    //             required: ["orderStatus"],
+    //             properties: {
+    //               orderStatus: { type: "string", enum: ["Pending", "Confirmed", "Packed", "Shipped", "Delivered", "Cancelled", "Returned"], example: "Shipped" },
+    //               trackingNumber: { type: "string", example: "TRK-987654321" },
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     responses: { "200": { description: "Order status updated" } },
+    //   },
+    // },
+    // "/api/admin/reports": {
+    //   get: {
+    //     summary: "Get Sales & Analytics Reports (Admin)",
+    //     tags: ["Admin Dashboard & Management"],
+    //     security: [{ BearerAuth: [] }],
+    //     responses: { "200": { description: "Sales analytics summary report" } },
+    //   },
+    // },
+    // "/api/admin/notifications/broadcast": {
+    //   post: {
+    //     summary: "Broadcast Push/In-App Notification (Admin)",
+    //     tags: ["Admin Dashboard & Management"],
+    //     security: [{ BearerAuth: [] }],
+    //     requestBody: {
+    //       required: true,
+    //       content: {
+    //         "application/json": {
+    //           schema: {
+    //             type: "object",
+    //             required: ["title", "message"],
+    //             properties: {
+    //               title: { type: "string", example: "Flash Sale Alert!" },
+    //               message: { type: "string", example: "50% off on all electronics today." },
+    //               type: { type: "string", example: "promotional" },
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     responses: { "200": { description: "Notification broadcasted to all users" } },
+    //   },
+    // },
+    // "/api/admin/settings": {
+    //   get: {
+    //     summary: "Get Global App Settings (Admin)",
+    //     tags: ["Admin Dashboard & Management"],
+    //     security: [{ BearerAuth: [] }],
+    //     responses: { "200": { description: "App configurations" } },
+    //   },
+    //   put: {
+    //     summary: "Update Global App Settings (Admin)",
+    //     tags: ["Admin Dashboard & Management"],
+    //     security: [{ BearerAuth: [] }],
+    //     requestBody: {
+    //       content: {
+    //         "application/json": {
+    //           schema: { type: "object", properties: { freeShippingThreshold: { type: "number", example: 100 } } },
+    //         },
+    //       },
+    //     },
+    //     responses: { "200": { description: "Settings saved" } },
+    //   },
+    // },
   },
 };
 

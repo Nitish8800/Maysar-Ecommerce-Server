@@ -8,7 +8,6 @@ const ProductSchema = new Schema<IProduct>(
     description: { type: String, required: true },
     brand: { type: String, required: true, trim: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true, index: true },
-    subCategory: { type: Schema.Types.ObjectId, ref: "Category" },
     price: { type: Number, required: true, min: 0 },
     salePrice: { type: Number, min: 0 },
     discount: { type: Number, default: 0 },

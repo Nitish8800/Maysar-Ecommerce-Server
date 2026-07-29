@@ -7,23 +7,21 @@ import { mongoIdParamValidator } from "../validators/common.validator";
 
 const router = Router();
 
-router.use(authenticate);
-
 // Profile
-router.get("/profile", userController.getProfile);
-router.put("/profile", updateProfileValidator, validate, userController.updateProfile);
+router.get("/profile", authenticate, userController.getProfile);
+router.put("/profile", authenticate, updateProfileValidator, validate, userController.updateProfile);
 
 // Address CRUD
-router.get("/addresses", userController.getAddresses);
-router.post("/addresses", addressValidator, validate, userController.addAddress);
-router.put("/addresses/:id", mongoIdParamValidator("id"), addressValidator, validate, userController.updateAddress);
-router.delete("/addresses/:id", mongoIdParamValidator("id"), validate, userController.deleteAddress);
-router.put("/addresses/:id/default", mongoIdParamValidator("id"), validate, userController.setDefaultAddress);
+router.get("/addresses", authenticate, userController.getAddresses);
+router.post("/addresses", authenticate, addressValidator, validate, userController.addAddress);
+router.put("/addresses/:id", authenticate, mongoIdParamValidator("id"), addressValidator, validate, userController.updateAddress);
+router.delete("/addresses/:id", authenticate, mongoIdParamValidator("id"), validate, userController.deleteAddress);
+router.put("/addresses/:id/default", authenticate, mongoIdParamValidator("id"), validate, userController.setDefaultAddress);
 
 // Wishlist CRUD
-router.get("/wishlist", userController.getWishlist);
-router.post("/wishlist", userController.addToWishlist);
-router.delete("/wishlist/:productId", mongoIdParamValidator("productId"), validate, userController.removeFromWishlist);
-router.delete("/wishlist", userController.clearWishlist);
+router.get("/wishlist", authenticate, userController.getWishlist);
+router.post("/wishlist", authenticate, userController.addToWishlist);
+router.delete("/wishlist/:productId", authenticate, mongoIdParamValidator("productId"), validate, userController.removeFromWishlist);
+router.delete("/wishlist", authenticate, userController.clearWishlist);
 
 export default router;

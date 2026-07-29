@@ -7,7 +7,6 @@ export interface IProduct extends Document {
   description: string;
   brand: string;
   category: Types.ObjectId;
-  subCategory?: Types.ObjectId;
   price: number;
   salePrice?: number;
   discount?: number;
