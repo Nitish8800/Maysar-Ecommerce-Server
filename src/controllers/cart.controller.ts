@@ -10,8 +10,8 @@ export class CartController {
   });
 
   public addToCart = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { productId, quantity } = req.body;
-    const cart = await cartService.addToCart(req.user!._id.toString(), productId, quantity);
+    const { productId, quantity, packIndex } = req.body;
+    const cart = await cartService.addToCart(req.user!._id.toString(), productId, quantity, packIndex ?? 0);
     sendSuccess(res, "Item added to cart.", cart);
   });
 

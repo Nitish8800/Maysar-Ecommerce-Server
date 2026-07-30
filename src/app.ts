@@ -38,7 +38,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "success",
-    message: "Ecommerce API Server is healthy and running.",
+    message: "Maysar API Server is healthy and running.",
     swaggerDocs: "/api-docs",
     timestamp: new Date().toISOString(),
   });

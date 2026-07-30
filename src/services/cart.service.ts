@@ -16,7 +16,7 @@ export class CartService {
     return cart;
   }
 
-  public async addToCart(customerId: string, productId: string, quantity: number): Promise<ICart> {
+  public async addToCart(customerId: string, productId: string, quantity: number, packIndex: number = 0): Promise<ICart> {
     const product = await productRepository.findById(productId);
     if (!product) throw ApiError.notFound("Product not found.");
     if (product.stock < quantity) throw ApiError.badRequest("Insufficient product stock.");
@@ -30,7 +30,11 @@ export class CartService {
       });
     }
 
-    const price = product.salePrice && product.salePrice > 0 ? product.salePrice : product.price;
+    // Resolve pack price — use the selected pack, fall back to index 0
+    const packs = product.packs ?? [];
+    const selectedPack = packs[packIndex] ?? packs[0];
+    if (!selectedPack) throw ApiError.badRequest("Product has no pack options defined.");
+    const price = selectedPack.price;
     const existingIndex = cart.items.findIndex((item) => item.product.toString() === productId);
 
     if (existingIndex > -1) {

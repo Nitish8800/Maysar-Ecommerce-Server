@@ -1,4 +1,5 @@
 import { productRepository } from "../repositories/product.repository";
+import { categoryRepository } from "../repositories/category.repository";
 import { generateSlug } from "../helpers/slug.helper";
 import { ApiError } from "../utils/apiError.util";
 import { IProduct } from "../interfaces/product.interface";
@@ -43,20 +44,42 @@ export class ProductService {
       filter.category = query.category;
     }
 
+    // Filter by pack price — matches against the first (lowest) pack's price
     if (query.minPrice !== undefined || query.maxPrice !== undefined) {
-      filter.price = {};
-      if (query.minPrice !== undefined) filter.price.$gte = Number(query.minPrice);
-      if (query.maxPrice !== undefined) filter.price.$lte = Number(query.maxPrice);
+      const priceFilter: any = {};
+      if (query.minPrice !== undefined) priceFilter.$gte = Number(query.minPrice);
+      if (query.maxPrice !== undefined) priceFilter.$lte = Number(query.maxPrice);
+      filter["packs.0.price"] = priceFilter;
     }
 
-    if (query.search) {
-      filter.$text = { $search: query.search };
+    if (query.search && query.search.trim()) {
+      const searchStr = query.search.trim();
+      const searchRegex = new RegExp(searchStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+
+      const matchingCategories = await categoryRepository.find({
+        $or: [
+          { name: searchRegex },
+          { slug: searchRegex },
+        ],
+      });
+      const matchingCategoryIds = matchingCategories.map((c) => c._id);
+
+      const searchConditions: any[] = [
+        { title: searchRegex },
+        { slug: searchRegex },
+      ];
+
+      if (matchingCategoryIds.length > 0) {
+        searchConditions.push({ category: { $in: matchingCategoryIds } });
+      }
+
+      filter.$or = searchConditions;
     }
 
     let sort: any = { createdAt: -1 };
-    if (query.sort === "price_asc") sort = { price: 1 };
-    if (query.sort === "price_desc") sort = { price: -1 };
-    if (query.sort === "rating") sort = { ratings: -1 };
+    if (query.sort === "price_asc")  sort = { "packs.0.price": 1 };
+    if (query.sort === "price_desc") sort = { "packs.0.price": -1 };
+    if (query.sort === "rating")     sort = { ratings: -1 };
 
     return await productRepository.paginate(filter, page, limit, sort);
   }

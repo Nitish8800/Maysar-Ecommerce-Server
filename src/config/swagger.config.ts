@@ -81,24 +81,110 @@ const swaggerDefinition = {
       //     isDefault: { type: "boolean", example: true },
       //   },
       // },
+      // ── Maysar Product Sub-Schemas ──────────────────────────────────────
+      ProductHighlight: {
+        type: "object",
+        required: ["value", "label"],
+        properties: {
+          value: { type: "string", example: "0g", description: "Metric value shown prominently (e.g. 0g, 30 min, 100%)" },
+          label: { type: "string", example: "Added Sugar", description: "Label below the value (e.g. Added Sugar, To Feel It, Dose On Label)" },
+        },
+      },
+      Ingredient: {
+        type: "object",
+        required: ["name", "dose"],
+        properties: {
+          name: { type: "string", example: "L-Carnitine", description: "Active ingredient name" },
+          dose: { type: "string", example: "1500mg", description: "Dose amount as shown on label" },
+        },
+      },
+      PackOption: {
+        type: "object",
+        required: ["sachets", "price", "pricePerServing"],
+        properties: {
+          sachets:        { type: "integer", example: 30, description: "Number of sachets in this pack" },
+          price:          { type: "number",  example: 999, description: "Total price for this pack (INR)" },
+          pricePerServing:{ type: "number",  example: 33, description: "Per-serving price shown below the pack price" },
+          savings:        { type: "number",  example: 199, description: "Amount saved vs. smallest pack (only on best-value pack)" },
+          isBestValue:    { type: "boolean", example: true, description: "Whether to show the Best Value badge" },
+        },
+      },
+      // ── Main Product Schema ────────────────────────────────────────────
       ProductSchema: {
         type: "object",
-        required: ["title", "description", "brand", "category", "price", "SKU", "stock", "thumbnail"],
+        required: ["title", "slug", "description", "brand", "category", "SKU", "stock", "thumbnail"],
         properties: {
-          title: { type: "string", example: "Wireless Noise-Canceling Headphones" },
-          description: { type: "string", example: "High-fidelity audio with active noise cancellation." },
-          brand: { type: "string", example: "AudioPro" },
-          category: { type: "string", example: "66a01234567890abcdef1234" },
-          price: { type: "number", example: 199.99 },
-          salePrice: { type: "number", example: 149.99 },
-          discount: { type: "number", example: 25 },
-          SKU: { type: "string", example: "AUD-NC-001" },
-          barcode: { type: "string", example: "123456789012" },
-          stock: { type: "number", example: 50 },
-          images: { type: "array", items: { type: "string" }, example: ["https://example.com/img1.jpg"] },
-          thumbnail: { type: "string", example: "https://example.com/thumb.jpg" },
-          tags: { type: "array", items: { type: "string" }, example: ["audio", "wireless", "headphones"] },
-          featured: { type: "boolean", example: true },
+          // Core
+          title:        { type: "string",  example: "Rise",                    description: "Product display name" },
+          slug:         { type: "string",  example: "rise",                    description: "URL-friendly unique identifier (auto-lowercased)" },
+          description:  { type: "string",  example: "Clean morning energy and sharp focus, minus the jitter.", description: "Full product description" },
+          shortTagline: { type: "string",  example: "Energy that lasts. Dosed like medicine, made like a treat.", description: "One-line tagline shown on the detail page" },
+          brand:        { type: "string",  example: "maysar",                    description: "Brand name" },
+          category:     { type: "string",  example: "66a01234567890abcdef1234",  description: "Category ObjectId" },
+          // Ritual label
+          ritual:       { type: "string",  example: "Morning Ritual",            description: "Ritual label shown on card and detail page (e.g. Morning Ritual, Deep Sleep)" },
+          // Flavors
+          flavors:      { type: "array", items: { type: "string" }, example: ["Strawberry"],           description: "Available flavors" },
+          flavorNote:   { type: "string",  example: "the only flavour, for now", description: "Supplemental flavor note shown next to the flavor pill" },
+          // Sensory / Serving
+          aromaNotes:   { type: "array", items: { type: "string" }, example: ["Berry", "Citrus"],       description: "Aroma descriptor tags shown on the product card" },
+          servingStyle: { type: "string",  example: "Mix 1 sachet with 200ml cold water", description: "How to serve / mixing instructions" },
+          // Highlights (3-stat block)
+          highlights: {
+            type: "array",
+            items: { $ref: "#/components/schemas/ProductHighlight" },
+            description: "Up to 3 key-stat highlights shown on the detail page",
+            example: [
+              { value: "0g",   label: "Added Sugar" },
+              { value: "30 min", label: "To Feel It" },
+              { value: "100%", label: "Dose On Label" },
+            ],
+          },
+          // Ingredients
+          ingredients: {
+            type: "array",
+            items: { $ref: "#/components/schemas/Ingredient" },
+            description: "Hero active ingredients displayed on the card and detail page",
+            example: [
+              { name: "L-Carnitine",   dose: "1500mg" },
+              { name: "Coffee Powder", dose: "1000mg" },
+              { name: "MCT Oil",       dose: "500mg"  },
+              { name: "Garcinia Cambogia", dose: "500mg" },
+            ],
+          },
+          // Badges
+          badges: {
+            type: "array", items: { type: "string" },
+            description: "Certification / attribute badges shown as icons on the product",
+            example: ["Plant Based", "No Added Sugar", "Quality Tested"],
+          },
+          // Packs — all pricing lives here, not at the top level
+          packs: {
+            type: "array",
+            items: { $ref: "#/components/schemas/PackOption" },
+            description: "Available purchasable pack options; pricing lives here instead of at the top level",
+            example: [
+              { sachets: 15, price: 599, pricePerServing: 40, isBestValue: false },
+              { sachets: 30, price: 999, pricePerServing: 33, savings: 199, isBestValue: true },
+            ],
+          },
+          // Bundle / Stack offer
+          bundleOfferText: { type: "string", example: "Stock two rituals, save 10%. Add any 2 tubs, discount applies at checkout.", description: "Offer banner text shown below the pack selector" },
+          // Nutrition label
+          nutritionLabelUrl: { type: "string", example: "https://cdn.maysar.com/nutrition/energy.pdf", description: "URL to the nutrition label PDF or image" },
+          // Brand colour
+          brandColor: { type: "string", example: "#C94F3A", description: "Product accent colour used in the stack builder and card (hex)" },
+          // Inventory
+          SKU:     { type: "string",  example: "MSR-ENERGY-001",                 description: "Unique stock-keeping unit (auto-uppercased)" },
+          barcode: { type: "string",  example: "8901234567890",                   description: "Product barcode" },
+          stock:   { type: "integer", example: 250,                               description: "Current stock count" },
+          // Media
+          images:    { type: "array", items: { type: "string" }, example: ["https://cdn.maysar.com/energy-front.jpg", "https://cdn.maysar.com/energy-sachet.jpg"], description: "Gallery image URLs" },
+          thumbnail: { type: "string", example: "https://cdn.maysar.com/energy-thumb.jpg", description: "Primary thumbnail image URL (required)" },
+          // Meta
+          tags:     { type: "array", items: { type: "string" }, example: ["energy", "focus", "morning", "l-carnitine"], description: "Search tags" },
+          status:   { type: "string", enum: ["active", "draft", "archived"], example: "active", description: "Publication status" },
+          featured: { type: "boolean", example: true, description: "Whether the product appears in featured sections" },
         },
       },
       CategorySchema: {
@@ -108,7 +194,6 @@ const swaggerDefinition = {
           name: { type: "string", example: "Electronics" },
           description: { type: "string", example: "Gadgets and devices." },
           image: { type: "string", example: "https://example.com/cat.jpg" },
-          parentCategory: { type: "string", example: "66a01234567890abcdef1234" },
           status: { type: "string", enum: ["active", "inactive"], example: "active" },
         },
       },
@@ -418,13 +503,13 @@ const swaggerDefinition = {
         summary: "List Products (Filter, Search, Sort, Paginate)",
         tags: ["Products Catalog"],
         parameters: [
-          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
-          { name: "limit", in: "query", schema: { type: "integer", default: 10 } },
-          { name: "search", in: "query", schema: { type: "string" } },
+          { name: "page",     in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit",    in: "query", schema: { type: "integer", default: 10 } },
+          { name: "search",   in: "query", schema: { type: "string" } },
           { name: "category", in: "query", schema: { type: "string" } },
-          { name: "minPrice", in: "query", schema: { type: "number" } },
-          { name: "maxPrice", in: "query", schema: { type: "number" } },
-          { name: "sort", in: "query", schema: { type: "string", enum: ["price_asc", "price_desc", "rating"] } },
+          { name: "minPrice", in: "query", schema: { type: "number" }, description: "Filter by minimum pack price (matches packs[0].price)" },
+          { name: "maxPrice", in: "query", schema: { type: "number" }, description: "Filter by maximum pack price (matches packs[0].price)" },
+          { name: "sort",     in: "query", schema: { type: "string", enum: ["price_asc", "price_desc", "rating"] }, description: "Sort by packs[0].price asc/desc, or by rating" },
         ],
         responses: { "200": { description: "Paginated products list" } },
       },
@@ -527,7 +612,8 @@ const swaggerDefinition = {
                 required: ["productId", "quantity"],
                 properties: {
                   productId: { type: "string", example: "66a01234567890abcdef1234" },
-                  quantity: { type: "integer", example: 2 },
+                  quantity:  { type: "integer", example: 1, description: "Number of units to add" },
+                  packIndex: { type: "integer", example: 1, default: 0, description: "Index of the selected pack in product.packs[] (0 = 15 sachets, 1 = 30 sachets). Defaults to 0 if not provided." },
                 },
               },
             },

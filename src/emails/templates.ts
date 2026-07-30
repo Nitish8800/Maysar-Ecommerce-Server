@@ -27,7 +27,7 @@ export const getOTPEmailTemplate = (name: string, otp: string, purpose: string):
 <body>
   <div class="container">
     <div class="header">
-      <h1>Store Ecommerce</h1>
+      <h1>Maysar</h1>
     </div>
     <div class="body">
       <div class="greeting">Hello ${recipientName},</div>
@@ -39,7 +39,7 @@ export const getOTPEmailTemplate = (name: string, otp: string, purpose: string):
       <p class="note">If you didn't request this, ignore this email.</p>
     </div>
     <div class="footer">
-      &copy; ${new Date().getFullYear()} Store Ecommerce. All rights reserved.
+      &copy; ${new Date().getFullYear()} Maysar. All rights reserved.
     </div>
   </div>
 </body>

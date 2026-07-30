@@ -5,16 +5,29 @@ export const createProductValidator = [
   body("description").trim().notEmpty().withMessage("Description is required."),
   body("brand").trim().notEmpty().withMessage("Brand is required."),
   body("category").isMongoId().withMessage("Valid category ObjectId is required."),
-  body("price").isFloat({ min: 0 }).withMessage("Price must be a non-negative number."),
-  body("salePrice").optional().isFloat({ min: 0 }).withMessage("Sale price must be a non-negative number."),
   body("SKU").trim().notEmpty().withMessage("SKU is required."),
   body("stock").isInt({ min: 0 }).withMessage("Stock must be an integer >= 0."),
   body("thumbnail").trim().notEmpty().withMessage("Thumbnail URL is required."),
+
+  // Packs validation — at least one pack is required, each must have sachets + price + pricePerServing
+  body("packs").isArray({ min: 1 }).withMessage("At least one pack option is required."),
+  body("packs.*.sachets").isInt({ min: 1 }).withMessage("Each pack must have a valid sachet count."),
+  body("packs.*.price").isFloat({ min: 0 }).withMessage("Each pack must have a valid price."),
+  body("packs.*.pricePerServing").isFloat({ min: 0 }).withMessage("Each pack must have a valid per-serving price."),
+  body("packs.*.savings").optional().isFloat({ min: 0 }),
+  body("packs.*.isBestValue").optional().isBoolean(),
 ];
 
 export const updateProductValidator = [
   body("title").optional().trim().notEmpty(),
-  body("price").optional().isFloat({ min: 0 }),
   body("stock").optional().isInt({ min: 0 }),
   body("category").optional().isMongoId(),
+
+  // Packs update validation
+  body("packs").optional().isArray({ min: 1 }).withMessage("At least one pack option is required."),
+  body("packs.*.sachets").optional().isInt({ min: 1 }),
+  body("packs.*.price").optional().isFloat({ min: 0 }),
+  body("packs.*.pricePerServing").optional().isFloat({ min: 0 }),
+  body("packs.*.savings").optional().isFloat({ min: 0 }),
+  body("packs.*.isBestValue").optional().isBoolean(),
 ];

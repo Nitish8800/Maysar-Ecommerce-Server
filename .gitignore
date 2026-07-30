@@ -24,6 +24,3 @@ dist/
 *.sw?
 
 temp
-
-src/knowledge.txt
-src/metastart-chatbot.pdf

@@ -52,7 +52,7 @@ export class AdminController {
 
   public getSettings = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const settings = {
-      appName: "Store Ecommerce",
+      appName: "Maysar",
       currency: "USD",
       freeShippingThreshold: 100,
       taxRatePercentage: 5,

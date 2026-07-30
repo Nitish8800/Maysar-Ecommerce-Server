@@ -6,7 +6,6 @@ export interface ICategory extends Document {
   slug: string;
   description?: string;
   image?: string;
-  parentCategory?: Types.ObjectId;
   status: "active" | "inactive";
   createdAt: Date;
   updatedAt: Date;

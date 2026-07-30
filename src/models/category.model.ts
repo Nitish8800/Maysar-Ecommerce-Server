@@ -7,7 +7,6 @@ const CategorySchema = new Schema<ICategory>(
     slug: { type: String, required: true, unique: true, lowercase: true, index: true },
     description: { type: String, trim: true },
     image: { type: String, default: "" },
-    parentCategory: { type: Schema.Types.ObjectId, ref: "Category", default: null },
     status: { type: String, enum: ["active", "inactive"], default: "active" },
   },
   { timestamps: true }
