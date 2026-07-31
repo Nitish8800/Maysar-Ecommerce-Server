@@ -16,6 +16,9 @@ export const env = {
   SMTP_PASS: process.env.SMTP_PASS || "",
   SMTP_FROM: process.env.SMTP_FROM || "",
   CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+  // HTTP Email Services (Works on Render Port 443)
+  RESEND_API_KEY: process.env.RESEND_API_KEY || "",
+  BREVO_API_KEY: process.env.BREVO_API_KEY || "",
   // Cloudinary
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || "",
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || "",

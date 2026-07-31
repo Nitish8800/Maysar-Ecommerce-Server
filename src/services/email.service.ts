@@ -11,12 +11,11 @@ class EmailService {
     const port = env.SMTP_PORT || 587;
     const isSecure = port === 465;
 
-    // Use explicit host and port settings instead of service preset to avoid Port 465 blocking on cloud hosts
     this.transporter = nodemailer.createTransport({
       host: env.SMTP_HOST || "smtp.gmail.com",
       port: port,
-      secure: isSecure, // false for 587 (STARTTLS), true for 465 (SSL)
-      requireTLS: !isSecure, // Require STARTTLS on port 587
+      secure: isSecure,
+      requireTLS: !isSecure,
       auth: env.SMTP_USER
         ? {
             user: env.SMTP_USER,
@@ -26,36 +25,110 @@ class EmailService {
       tls: {
         rejectUnauthorized: false,
       },
-      connectionTimeout: 15000,
-      greetingTimeout: 15000,
-      socketTimeout: 15000,
+      connectionTimeout: 4000,
+      greetingTimeout: 4000,
+      socketTimeout: 4000,
     });
   }
 
   public async sendEmail(options: IEmailOptions): Promise<boolean> {
     try {
-      const mailOptions = {
-        from: env.SMTP_FROM,
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
-      };
-
-      if (env.NODE_ENV === "development" && (!env.SMTP_USER || env.SMTP_HOST.includes("mailtrap"))) {
-        logger.info(`[Email Service Simulation] Sent email to ${options.to} with subject "${options.subject}"`);
+      // 1. Try Resend HTTP API (Port 443 - Recommended for Render cloud hosting)
+      if (env.RESEND_API_KEY) {
+        return await this.sendViaResend(options);
       }
 
-      const info = await this.transporter.sendMail(mailOptions);
-      logger.info(`[Email Service] Email sent successfully: ${info.messageId}`);
-      return true;
+      // 2. Try Brevo HTTP API (Port 443 - Alternative for Render)
+      if (env.BREVO_API_KEY) {
+        return await this.sendViaBrevo(options);
+      }
+
+      // 3. Fallback to Nodemailer SMTP
+      if (env.SMTP_USER && env.SMTP_PASS) {
+        const mailOptions = {
+          from: env.SMTP_FROM || env.SMTP_USER,
+          to: options.to,
+          subject: options.subject,
+          html: options.html,
+        };
+
+        const info = await this.transporter.sendMail(mailOptions);
+        logger.info(`[Email Service] Email sent successfully via SMTP: ${info.messageId}`);
+        return true;
+      }
+
+      logger.warn(`[Email Service] No active email provider configured. Email to ${options.to} skipped.`);
+      return false;
     } catch (error) {
       logger.error(`[Email Service Error] Failed to send email to ${options.to}`, error);
-      // In dev environment or unconfigured SMTP, do not throw fatal crash so developers can continue testing
+      return false;
+    }
+  }
+
+  private async sendViaResend(options: IEmailOptions): Promise<boolean> {
+    try {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: env.SMTP_FROM || "Maysar Store <onboarding@resend.dev>",
+          to: [options.to],
+          subject: options.subject,
+          html: options.html,
+        }),
+      });
+
+      if (response.ok) {
+        logger.info(`[Email Service] Email sent successfully via Resend HTTP API to ${options.to}`);
+        return true;
+      }
+      const errData = await response.text();
+      logger.error(`[Resend HTTP Error] ${response.status} - ${errData}`);
+      return false;
+    } catch (err) {
+      logger.error(`[Resend HTTP Exception]`, err);
+      return false;
+    }
+  }
+
+  private async sendViaBrevo(options: IEmailOptions): Promise<boolean> {
+    try {
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: "Maysar Store", email: env.SMTP_FROM || env.SMTP_USER || "noreply@maysar.com" },
+          to: [{ email: options.to }],
+          subject: options.subject,
+          htmlContent: options.html,
+        }),
+      });
+
+      if (response.ok) {
+        logger.info(`[Email Service] Email sent successfully via Brevo HTTP API to ${options.to}`);
+        return true;
+      }
+      const errData = await response.text();
+      logger.error(`[Brevo HTTP Error] ${response.status} - ${errData}`);
+      return false;
+    } catch (err) {
+      logger.error(`[Brevo HTTP Exception]`, err);
       return false;
     }
   }
 
   public async sendOTPEmail(email: string, otp: string, purpose: "signup" | "login", name?: string): Promise<boolean> {
+    // ALWAYS log OTP clearly in server logs for zero-friction testing on Render!
+    logger.info(`===================================================`);
+    logger.info(`🔑 [LIVE OTP CODE]: ${otp} | Email: ${email} | Purpose: ${purpose.toUpperCase()}`);
+    logger.info(`===================================================`);
+
     const template = getOTPEmailTemplate(name || "", otp, purpose);
     return await this.sendEmail({
       to: email,
