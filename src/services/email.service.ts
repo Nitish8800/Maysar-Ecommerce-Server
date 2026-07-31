@@ -8,22 +8,27 @@ class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    const isGmailService = env.SMTP_SERVICE && env.SMTP_SERVICE.toLowerCase() === "gmail";
-    
+    const port = env.SMTP_PORT || 587;
+    const isSecure = port === 465;
+
+    // Use explicit host and port settings instead of service preset to avoid Port 465 blocking on cloud hosts
     this.transporter = nodemailer.createTransport({
-      ...(isGmailService
-        ? { service: "gmail" }
-        : { host: env.SMTP_HOST, port: env.SMTP_PORT, secure: env.SMTP_PORT === 465 }),
-      secure: env.SMTP_PORT === 465,
+      host: env.SMTP_HOST || "smtp.gmail.com",
+      port: port,
+      secure: isSecure, // false for 587 (STARTTLS), true for 465 (SSL)
+      requireTLS: !isSecure, // Require STARTTLS on port 587
       auth: env.SMTP_USER
         ? {
             user: env.SMTP_USER,
             pass: env.SMTP_PASS,
           }
         : undefined,
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
+      tls: {
+        rejectUnauthorized: false,
+      },
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 15000,
     });
   }
 
