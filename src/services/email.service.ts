@@ -1,3 +1,4 @@
+import { Resend } from "resend";
 import nodemailer from "nodemailer";
 import { env } from "../config/env.config";
 import { IEmailOptions } from "../types/common.types";
@@ -6,8 +7,13 @@ import { getOTPEmailTemplate } from "../emails/templates";
 
 class EmailService {
   private transporter: nodemailer.Transporter;
+  private resendClient: Resend | null = null;
 
   constructor() {
+    if (env.RESEND_API_KEY) {
+      this.resendClient = new Resend(env.RESEND_API_KEY);
+    }
+
     const port = env.SMTP_PORT || 587;
     const isSecure = port === 465;
 
@@ -45,7 +51,9 @@ class EmailService {
 
       // 3. In production or cloud host without HTTP API keys, skip raw TCP SMTP to prevent ETIMEDOUT errors
       if (env.NODE_ENV === "production") {
-        logger.info(`[Email Service] Cloud server detected. Skipping raw SMTP to avoid port blocking timeout. Use Resend/Brevo API key or Dummy Master OTP 123456.`);
+        logger.warn(
+          `[Email Service] Cloud server detected without RESEND_API_KEY or BREVO_API_KEY. Skipping raw SMTP to avoid Render port 587 timeout. OTP logged in console.`
+        );
         return false;
       }
 
@@ -73,29 +81,33 @@ class EmailService {
 
   private async sendViaResend(options: IEmailOptions): Promise<boolean> {
     try {
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: env.SMTP_FROM || "Maysar Store <onboarding@resend.dev>",
+      if (!this.resendClient && env.RESEND_API_KEY) {
+        this.resendClient = new Resend(env.RESEND_API_KEY);
+      }
+
+      const rawFrom = env.SMTP_FROM || "onboarding@resend.dev";
+      const sender = rawFrom.includes("<") ? rawFrom : `Maysar Store <${rawFrom}>`;
+
+      if (this.resendClient) {
+        const { data, error } = await this.resendClient.emails.send({
+          from: sender,
           to: [options.to],
           subject: options.subject,
           html: options.html,
-        }),
-      });
+        });
 
-      if (response.ok) {
-        logger.info(`[Email Service] Email sent successfully via Resend HTTP API to ${options.to}`);
+        if (error) {
+          logger.error(`[Resend SDK Error] ${error.name}: ${error.message}`);
+          return false;
+        }
+
+        logger.info(`[Email Service] Email sent successfully via Resend API to ${options.to} (ID: ${data?.id})`);
         return true;
       }
-      const errData = await response.text();
-      logger.error(`[Resend HTTP Error] ${response.status} - ${errData}`);
+
       return false;
     } catch (err) {
-      logger.error(`[Resend HTTP Exception]`, err);
+      logger.error(`[Resend SDK Exception]`, err);
       return false;
     }
   }
