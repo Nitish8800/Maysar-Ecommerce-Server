@@ -8,17 +8,22 @@ class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
+    const isGmailService = env.SMTP_SERVICE && env.SMTP_SERVICE.toLowerCase() === "gmail";
+    
     this.transporter = nodemailer.createTransport({
-      service: env.SMTP_SERVICE,
-      host: env.SMTP_HOST,
-      port: env.SMTP_PORT,
-      secure:  process.env.SMTP_PORT === '465',
+      ...(isGmailService
+        ? { service: "gmail" }
+        : { host: env.SMTP_HOST, port: env.SMTP_PORT, secure: env.SMTP_PORT === 465 }),
+      secure: env.SMTP_PORT === 465,
       auth: env.SMTP_USER
         ? {
             user: env.SMTP_USER,
             pass: env.SMTP_PASS,
           }
         : undefined,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
   }
 
