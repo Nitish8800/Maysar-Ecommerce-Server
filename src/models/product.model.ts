@@ -19,6 +19,8 @@ const IngredientSchema = new Schema(
 
 const PackOptionSchema = new Schema(
   {
+    sku: { type: String, trim: true },
+    name: { type: String, trim: true },
     sachets: { type: Number, required: true },           // e.g. 15 or 30
     price: { type: Number, required: true, min: 0 },     // e.g. 599
     pricePerServing: { type: Number, required: true, min: 0 }, // e.g. 40
@@ -67,8 +69,9 @@ const ProductSchema = new Schema<IProduct>(
     // ── Nutrition ─────────────────────────────────────────────────────
     nutritionLabelUrl: { type: String, trim: true },     // URL to nutrition label image/PDF
 
-    // ── Brand Colour (stack builder & card accent) ────────────────────
+    // ── Brand Colour & Background Gradient ────────────────────────────
     brandColor: { type: String, trim: true },            // e.g. "#E05A3A"
+    bgColor: { type: String, trim: true },               // e.g. "linear-gradient(178deg, #FBF8EE 0%, #E6F7F3 42%, #C4EEE4 100%)"
 
     discount: { type: Number, default: 0 },
 

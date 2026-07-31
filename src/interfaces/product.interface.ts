@@ -14,6 +14,8 @@ export interface IIngredient {
 
 /** A purchasable pack option (e.g. 15 sachets / 30 sachets) */
 export interface IPackOption {
+  sku?: string;             // e.g. "MSR-RISE-15"
+  name?: string;            // e.g. "15 Sachets" or "Pack of 15"
   sachets: number;          // e.g. 15 or 30
   price: number;            // e.g. 599
   pricePerServing: number;  // e.g. 40
@@ -61,8 +63,9 @@ export interface IProduct extends Document {
   // ── Nutrition ────────────────────────────────────────────────────────
   nutritionLabelUrl?: string;   // URL to nutrition label image/PDF
 
-  // ── Brand Colour (for stack builder & card accent) ───────────────────
+  // ── Brand Colour & Background Gradient ────────────────────────────────
   brandColor?: string;          // e.g. "#E05A3A" (orange for Rise, purple for Rest)
+  bgColor?: string;             // e.g. "linear-gradient(178deg, #FBF8EE 0%, #E6F7F3 42%, #C4EEE4 100%)"
 
   discount?: number;
 

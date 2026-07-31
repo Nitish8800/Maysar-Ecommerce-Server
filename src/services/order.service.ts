@@ -31,9 +31,18 @@ export class OrderService {
         throw ApiError.badRequest(`Insufficient stock for product "${product.title}".`);
       }
 
+      const packIdx = item.packIndex ?? 0;
+      const pack = product.packs?.[packIdx] || product.packs?.[0];
+      const variantName = item.variantName || pack?.name || (pack?.sachets ? `${pack.sachets} Sachets` : `Pack ${packIdx + 1}`);
+      const sku = item.sku || pack?.sku || (pack?.sachets ? `${product.SKU}-${pack.sachets}S` : product.SKU);
+      const sachets = item.sachets || pack?.sachets || 15;
+
       orderItems.push({
         product: product._id,
         title: product.title,
+        variantName,
+        sku,
+        sachets,
         price: item.price,
         quantity: item.quantity,
         image: product.thumbnail || (product.images[0] ?? ""),

@@ -5,6 +5,10 @@ const CartItemSchema = new Schema(
   {
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
     quantity: { type: Number, required: true, min: 1 },
+    packIndex: { type: Number, default: 0, min: 0 },
+    variantName: { type: String, trim: true },
+    sku: { type: String, trim: true },
+    sachets: { type: Number, min: 0 },
     price: { type: Number, required: true, min: 0 },
     subtotal: { type: Number, required: true, min: 0 },
   },

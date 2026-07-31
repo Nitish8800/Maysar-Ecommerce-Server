@@ -5,6 +5,9 @@ const OrderItemSchema = new Schema(
   {
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
     title: { type: String, required: true },
+    variantName: { type: String, trim: true },
+    sku: { type: String, trim: true },
+    sachets: { type: Number, min: 0 },
     price: { type: Number, required: true, min: 0 },
     quantity: { type: Number, required: true, min: 1 },
     image: { type: String, default: "" },

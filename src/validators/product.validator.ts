@@ -16,12 +16,16 @@ export const createProductValidator = [
   body("packs.*.pricePerServing").isFloat({ min: 0 }).withMessage("Each pack must have a valid per-serving price."),
   body("packs.*.savings").optional().isFloat({ min: 0 }),
   body("packs.*.isBestValue").optional().isBoolean(),
+  body("brandColor").optional().isString().trim(),
+  body("bgColor").optional().isString().trim(),
 ];
 
 export const updateProductValidator = [
   body("title").optional().trim().notEmpty(),
   body("stock").optional().isInt({ min: 0 }),
   body("category").optional().isMongoId(),
+  body("brandColor").optional().isString().trim(),
+  body("bgColor").optional().isString().trim(),
 
   // Packs update validation
   body("packs").optional().isArray({ min: 1 }).withMessage("At least one pack option is required."),
