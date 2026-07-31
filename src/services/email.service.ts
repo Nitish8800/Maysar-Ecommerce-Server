@@ -12,7 +12,7 @@ class EmailService {
       service: env.SMTP_SERVICE,
       host: env.SMTP_HOST,
       port: env.SMTP_PORT,
-      secure: true,
+      secure:  process.env.SMTP_PORT === '465',
       auth: env.SMTP_USER
         ? {
             user: env.SMTP_USER,
