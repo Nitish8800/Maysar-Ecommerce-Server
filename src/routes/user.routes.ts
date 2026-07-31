@@ -1,15 +1,20 @@
 import { Router } from "express";
 import { userController } from "../controllers/user.controller";
+import { handleAvatarUpload } from "../controllers/upload.controller";
 import { authenticate } from "../middleware/auth.middleware";
 import { validate } from "../middleware/validate.middleware";
 import { updateProfileValidator, addressValidator } from "../validators/user.validator";
 import { mongoIdParamValidator } from "../validators/common.validator";
+import { uploadAvatar } from "../middleware/upload.middleware";
 
 const router = Router();
 
 // Profile
 router.get("/profile", authenticate, userController.getProfile);
 router.put("/profile", authenticate, updateProfileValidator, validate, userController.updateProfile);
+
+// ── Avatar Upload (Cloudinary) ────────────────────────────────────────────────
+router.post("/profile/avatar", authenticate, uploadAvatar, handleAvatarUpload);
 
 // Address CRUD
 router.get("/addresses", authenticate, userController.getAddresses);
