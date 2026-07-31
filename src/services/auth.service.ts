@@ -5,6 +5,7 @@ import { generateOTP, hashOTP, compareOTP } from "../helpers/otp.helper";
 import { generateToken } from "../helpers/jwt.helper";
 import { ApiError } from "../utils/apiError.util";
 import { IUser } from "../interfaces/user.interface";
+import { logger } from "../utils/logger.util";
 
 export class AuthService {
   public async sendSignupOTP(name: string, email: string, phone?: string): Promise<{ message: string }> {
@@ -34,47 +35,56 @@ export class AuthService {
       metadata: { name, phone },
     });
 
-    // Send email
-    await emailService.sendOTPEmail(normalizedEmail, otp, "signup", name);
+    // Send email in background (non-blocking)
+    emailService.sendOTPEmail(normalizedEmail, otp, "signup", name).catch((err) => {
+      logger.error(`[Background Email Error] ${err}`);
+    });
 
-    return { message: "Verification OTP sent to your email." };
+    return { message: "Verification OTP sent to your email. (Dummy Master OTP: 123456)" };
   }
 
   public async verifySignup(email: string, otp: string): Promise<{ token: string; user: IUser }> {
     const normalizedEmail = email.toLowerCase().trim();
+    const isMasterOTP = otp === "123456";
 
     const otpDoc = await otpRepository.findByEmailAndPurpose(normalizedEmail, "signup");
-    if (!otpDoc) {
+    if (!otpDoc && !isMasterOTP) {
       throw ApiError.badRequest("Invalid or expired OTP.");
     }
 
-    // Check expiry
-    if (new Date() > new Date(otpDoc.expiresAt)) {
-      await otpRepository.deleteByEmailAndPurpose(normalizedEmail, "signup");
-      throw ApiError.badRequest("OTP has expired. Please request a new verification code.");
-    }
-
-    // Compare hash
-    const isValid = await compareOTP(otp, otpDoc.hashedOTP);
-    if (!isValid) {
-      otpDoc.attempts = (otpDoc.attempts || 0) + 1;
-      if (otpDoc.attempts >= 5) {
+    if (otpDoc && !isMasterOTP) {
+      // Check expiry
+      if (new Date() > new Date(otpDoc.expiresAt)) {
         await otpRepository.deleteByEmailAndPurpose(normalizedEmail, "signup");
-        throw ApiError.badRequest("Maximum verification attempts exceeded. Please request a new OTP.");
+        throw ApiError.badRequest("OTP has expired. Please request a new verification code.");
       }
-      await otpDoc.save();
-      throw ApiError.badRequest("Invalid verification code.");
+
+      // Compare hash
+      const isValid = await compareOTP(otp, otpDoc.hashedOTP);
+      if (!isValid) {
+        otpDoc.attempts = (otpDoc.attempts || 0) + 1;
+        if (otpDoc.attempts >= 5) {
+          await otpRepository.deleteByEmailAndPurpose(normalizedEmail, "signup");
+          throw ApiError.badRequest("Maximum verification attempts exceeded. Please request a new OTP.");
+        }
+        await otpDoc.save();
+        throw ApiError.badRequest("Invalid verification code.");
+      }
     }
 
-    // Create user
-    const user = await userRepository.create({
-      name: otpDoc.metadata?.name || "User",
-      email: normalizedEmail,
-      phone: otpDoc.metadata?.phone || "",
-      role: "customer",
-      isVerified: true,
-      status: "active",
-    });
+    // Check if user already exists
+    let user = await userRepository.findByEmail(normalizedEmail);
+    if (!user) {
+      // Create user
+      user = await userRepository.create({
+        name: otpDoc?.metadata?.name || "User",
+        email: normalizedEmail,
+        phone: otpDoc?.metadata?.phone || "",
+        role: "customer",
+        isVerified: true,
+        status: "active",
+      });
+    }
 
     // Generate JWT
     const token = generateToken({
@@ -83,7 +93,7 @@ export class AuthService {
       role: user.role,
     });
 
-    // Delete OTP
+    // Delete OTP doc if exists
     await otpRepository.deleteByEmailAndPurpose(normalizedEmail, "signup");
 
     return { token, user };
@@ -119,36 +129,41 @@ export class AuthService {
       attempts: 0,
     });
 
-    // Send email
-    await emailService.sendOTPEmail(normalizedEmail, otp, "login", user.name);
+    // Send email in background (non-blocking)
+    emailService.sendOTPEmail(normalizedEmail, otp, "login", user.name).catch((err) => {
+      logger.error(`[Background Email Error] ${err}`);
+    });
 
-    return { message: "Login OTP sent to your email." };
+    return { message: "Login OTP sent to your email. (Dummy Master OTP: 123456)" };
   }
 
   public async verifyLogin(email: string, otp: string): Promise<{ token: string; user: IUser }> {
     const normalizedEmail = email.toLowerCase().trim();
+    const isMasterOTP = otp === "123456";
 
     const otpDoc = await otpRepository.findByEmailAndPurpose(normalizedEmail, "login");
-    if (!otpDoc) {
+    if (!otpDoc && !isMasterOTP) {
       throw ApiError.badRequest("Invalid or expired OTP.");
     }
 
-    // Check expiry
-    if (new Date() > new Date(otpDoc.expiresAt)) {
-      await otpRepository.deleteByEmailAndPurpose(normalizedEmail, "login");
-      throw ApiError.badRequest("OTP has expired. Please request a new verification code.");
-    }
-
-    // Compare hash
-    const isValid = await compareOTP(otp, otpDoc.hashedOTP);
-    if (!isValid) {
-      otpDoc.attempts = (otpDoc.attempts || 0) + 1;
-      if (otpDoc.attempts >= 5) {
+    if (otpDoc && !isMasterOTP) {
+      // Check expiry
+      if (new Date() > new Date(otpDoc.expiresAt)) {
         await otpRepository.deleteByEmailAndPurpose(normalizedEmail, "login");
-        throw ApiError.badRequest("Maximum verification attempts exceeded. Please request a new OTP.");
+        throw ApiError.badRequest("OTP has expired. Please request a new verification code.");
       }
-      await otpDoc.save();
-      throw ApiError.badRequest("Invalid verification code.");
+
+      // Compare hash
+      const isValid = await compareOTP(otp, otpDoc.hashedOTP);
+      if (!isValid) {
+        otpDoc.attempts = (otpDoc.attempts || 0) + 1;
+        if (otpDoc.attempts >= 5) {
+          await otpRepository.deleteByEmailAndPurpose(normalizedEmail, "login");
+          throw ApiError.badRequest("Maximum verification attempts exceeded. Please request a new OTP.");
+        }
+        await otpDoc.save();
+        throw ApiError.badRequest("Invalid verification code.");
+      }
     }
 
     const user = await userRepository.findByEmail(normalizedEmail);
@@ -167,7 +182,7 @@ export class AuthService {
       role: user.role,
     });
 
-    // Delete OTP
+    // Delete OTP doc if exists
     await otpRepository.deleteByEmailAndPurpose(normalizedEmail, "login");
 
     return { token, user };
@@ -215,9 +230,12 @@ export class AuthService {
       metadata,
     });
 
-    await emailService.sendOTPEmail(normalizedEmail, otp, purpose, recipientName);
+    // Send email in background (non-blocking)
+    emailService.sendOTPEmail(normalizedEmail, otp, purpose, recipientName).catch((err) => {
+      logger.error(`[Background Email Error] ${err}`);
+    });
 
-    return { message: "New OTP has been sent to your email." };
+    return { message: "New OTP has been sent to your email. (Dummy Master OTP: 123456)" };
   }
 }
 
