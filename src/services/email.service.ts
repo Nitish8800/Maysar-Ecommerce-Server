@@ -43,7 +43,13 @@ class EmailService {
         return await this.sendViaBrevo(options);
       }
 
-      // 3. Fallback to Nodemailer SMTP
+      // 3. In production or cloud host without HTTP API keys, skip raw TCP SMTP to prevent ETIMEDOUT errors
+      if (env.NODE_ENV === "production") {
+        logger.info(`[Email Service] Cloud server detected. Skipping raw SMTP to avoid port blocking timeout. Use Resend/Brevo API key or Dummy Master OTP 123456.`);
+        return false;
+      }
+
+      // 4. Fallback to Nodemailer SMTP in local development
       if (env.SMTP_USER && env.SMTP_PASS) {
         const mailOptions = {
           from: env.SMTP_FROM || env.SMTP_USER,
