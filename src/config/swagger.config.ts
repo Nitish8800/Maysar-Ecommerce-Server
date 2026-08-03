@@ -58,17 +58,17 @@ const swaggerDefinition = {
       AddressSchema: {
         type: "object",
         required: ["firstName", "lastName", "phone", "country", "state", "city", "zipCode", "addressLine1"],
-        properties: {
+          properties: {
           firstName: { type: "string", example: "John" },
           lastName: { type: "string", example: "Doe" },
-          phone: { type: "string", example: "+19999999999" },
-          country: { type: "string", example: "USA" },
-          state: { type: "string", example: "California" },
-          city: { type: "string", example: "San Francisco" },
-          zipCode: { type: "string", example: "94105" },
+          phone: { type: "string", example: "++91 8080808080" },
+          country: { type: "string", example: "India" },
+          state: { type: "string", example: "Delhi" },
+          city: { type: "string", example: "New Delhi" },
+          zipCode: { type: "string", example: "110011" },
           addressLine1: { type: "string", example: "123 Market Street" },
-          addressLine2: { type: "string", example: "Suite 400" },
-          landmark: { type: "string", example: "Near Tech Hub" },
+          addressLine2: { type: "string", example: "New Ashok Nagar" },
+          landmark: { type: "string", example: "Near Noida Border" },
           isDefault: { type: "boolean", example: true },
         },
       },
@@ -112,7 +112,7 @@ const swaggerDefinition = {
       // ── Main Product Schema ────────────────────────────────────────────
       ProductSchema: {
         type: "object",
-        required: ["title", "slug", "description", "brand", "category", "SKU", "stock", "thumbnail"],
+        required: ["title", "slug", "description", "brand", "category", "SKU", "stock"],
         properties: {
           // Core
           title:        { type: "string",  example: "Rise",                    description: "Product display name" },
@@ -181,7 +181,6 @@ const swaggerDefinition = {
           stock:   { type: "integer", example: 250,                               description: "Current stock count" },
           // Media
           images:    { type: "array", items: { type: "string" }, example: ["https://cdn.maysar.com/energy-front.jpg", "https://cdn.maysar.com/energy-sachet.jpg"], description: "Gallery image URLs" },
-          thumbnail: { type: "string", example: "https://cdn.maysar.com/energy-thumb.jpg", description: "Primary thumbnail image URL (required)" },
           // Meta
           tags:     { type: "array", items: { type: "string" }, example: ["energy", "focus", "morning", "l-carnitine"], description: "Search tags" },
           status:   { type: "string", enum: ["active", "draft", "archived"], example: "active", description: "Publication status" },

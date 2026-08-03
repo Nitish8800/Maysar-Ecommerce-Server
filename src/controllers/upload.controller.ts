@@ -5,25 +5,6 @@ import { userRepository } from "../repositories/user.repository";
 import { ApiError } from "../utils/apiError.util";
 import { deleteFromCloudinary } from "../config/cloudinary.config";
 
-// ─── Product Thumbnail Upload ─────────────────────────────────────────────────
-/**
- * POST /api/products/upload/thumbnail
- * Expects multipart/form-data with field "thumbnail"
- * Returns { url, publicId }
- */
-export const handleThumbnailUpload = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  if (!req.file) {
-    throw ApiError.badRequest("No thumbnail file provided.");
-  }
-
-  const file = req.file as Express.Multer.File & { path: string; filename: string };
-
-  sendSuccess(res, "Thumbnail uploaded successfully.", {
-    url: file.path,
-    publicId: file.filename,
-  });
-});
-
 // ─── Product Gallery Upload ───────────────────────────────────────────────────
 /**
  * POST /api/products/upload/gallery

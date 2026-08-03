@@ -134,7 +134,7 @@ export class AuthService {
       logger.error(`[Background Email Error] ${err}`);
     });
 
-    return { message: "Login OTP sent to your email. (Dummy Master OTP: 123456)" };
+    return { message: "Login OTP sent to your email." };
   }
 
   public async verifyLogin(email: string, otp: string): Promise<{ token: string; user: IUser }> {

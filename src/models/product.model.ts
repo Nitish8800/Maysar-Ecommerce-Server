@@ -82,7 +82,6 @@ const ProductSchema = new Schema<IProduct>(
 
     // ── Media ─────────────────────────────────────────────────────────
     images: [{ type: String }],
-    thumbnail: { type: String, required: true },
 
     // ── Reviews ───────────────────────────────────────────────────────
     ratings: { type: Number, default: 0, min: 0, max: 5 },

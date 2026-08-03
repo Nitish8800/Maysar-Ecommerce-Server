@@ -76,7 +76,6 @@ export interface IProduct extends Document {
 
   // ── Media ────────────────────────────────────────────────────────────
   images: string[];
-  thumbnail: string;
 
   // ── Reviews ──────────────────────────────────────────────────────────
   ratings: number;

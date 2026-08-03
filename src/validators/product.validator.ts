@@ -7,7 +7,6 @@ export const createProductValidator = [
   body("category").isMongoId().withMessage("Valid category ObjectId is required."),
   body("SKU").trim().notEmpty().withMessage("SKU is required."),
   body("stock").isInt({ min: 0 }).withMessage("Stock must be an integer >= 0."),
-  body("thumbnail").trim().notEmpty().withMessage("Thumbnail URL is required."),
 
   // Packs validation — at least one pack is required, each must have sachets + price + pricePerServing
   body("packs").isArray({ min: 1 }).withMessage("At least one pack option is required."),

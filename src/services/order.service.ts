@@ -45,7 +45,7 @@ export class OrderService {
         sachets,
         price: item.price,
         quantity: item.quantity,
-        image: product.thumbnail || (product.images[0] ?? ""),
+        image: product.images?.[0] ?? "",
       });
 
       subtotal += item.price * item.quantity;

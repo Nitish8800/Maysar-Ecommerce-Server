@@ -19,12 +19,14 @@ router.get("/dashboard", adminController.getDashboard);
 
 // Customers Management
 router.get("/customers", paginationValidator, validate, adminController.getCustomers);
+router.put("/customers/:id/role", mongoIdParamValidator("id"), validate, adminController.updateUserRole);
 router.put("/customers/:id/status", mongoIdParamValidator("id"), validate, adminController.updateCustomerStatus);
 
 // Inventory Management
 router.put("/inventory/:productId", mongoIdParamValidator("productId"), validate, adminController.updateInventory);
 
 // Orders Management
+router.get("/orders", paginationValidator, validate, adminController.getOrders);
 router.put("/orders/:id/status", mongoIdParamValidator("id"), updateOrderStatusValidator, validate, adminController.updateOrderStatus);
 
 // Reports

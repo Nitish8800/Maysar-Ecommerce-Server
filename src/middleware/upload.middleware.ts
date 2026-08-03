@@ -6,19 +6,6 @@ import cloudinary from "../config/cloudinary.config";
 const ALLOWED_FORMATS = ["jpg", "jpeg", "png", "webp", "avif", "gif"];
 const MAX_FILE_SIZE_MB = 10;
 
-// ─── Product Thumbnail Storage ────────────────────────────────────────────────
-const thumbnailStorage = new CloudinaryStorage({
-  cloudinary,
-  params: async (_req, _file) => ({
-    folder: "maysar/products/thumbnails",
-    allowed_formats: ALLOWED_FORMATS,
-    transformation: [
-      { width: 800, height: 800, crop: "fill", gravity: "auto", quality: "auto:best", fetch_format: "auto" },
-    ],
-    resource_type: "image",
-  }),
-});
-
 // ─── Product Gallery Storage ──────────────────────────────────────────────────
 const galleryStorage = new CloudinaryStorage({
   cloudinary,
@@ -55,12 +42,6 @@ const imageFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
 };
 
 // ─── Multer Instances ─────────────────────────────────────────────────────────
-export const uploadProductThumbnail = multer({
-  storage: thumbnailStorage,
-  limits: { fileSize: MAX_FILE_SIZE_MB * 1024 * 1024 },
-  fileFilter: imageFilter,
-}).single("thumbnail");
-
 export const uploadProductGallery = multer({
   storage: galleryStorage,
   limits: { fileSize: MAX_FILE_SIZE_MB * 1024 * 1024 },
