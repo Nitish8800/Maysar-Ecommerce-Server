@@ -10,6 +10,8 @@ export const createProductValidator = [
 
   // Packs validation — at least one pack is required, each must have sachets + price + pricePerServing
   body("packs").isArray({ min: 1 }).withMessage("At least one pack option is required."),
+  body("packs.*.name").optional().isString().trim(),
+  body("packs.*.sku").optional().isString().trim(),
   body("packs.*.sachets").isInt({ min: 1 }).withMessage("Each pack must have a valid sachet count."),
   body("packs.*.price").isFloat({ min: 0 }).withMessage("Each pack must have a valid price."),
   body("packs.*.pricePerServing").isFloat({ min: 0 }).withMessage("Each pack must have a valid per-serving price."),
@@ -28,6 +30,8 @@ export const updateProductValidator = [
 
   // Packs update validation
   body("packs").optional().isArray({ min: 1 }).withMessage("At least one pack option is required."),
+  body("packs.*.name").optional().isString().trim(),
+  body("packs.*.sku").optional().isString().trim(),
   body("packs.*.sachets").optional().isInt({ min: 1 }),
   body("packs.*.price").optional().isFloat({ min: 0 }),
   body("packs.*.pricePerServing").optional().isFloat({ min: 0 }),
