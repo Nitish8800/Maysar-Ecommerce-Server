@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { userRepository } from "../repositories/user.repository";
 import { productRepository } from "../repositories/product.repository";
 import { ApiError } from "../utils/apiError.util";
@@ -86,32 +87,63 @@ export class UserService {
     const user = await userRepository.findById(userId);
     if (!user) throw ApiError.notFound("User not found.");
     await user.populate("wishlist");
-    return user.wishlist;
+    return (user.wishlist || []).filter(Boolean);
   }
 
   public async addToWishlist(userId: string, productId: string): Promise<any> {
     const user = await userRepository.findById(userId);
     if (!user) throw ApiError.notFound("User not found.");
 
-    const product = await productRepository.findById(productId);
+    let product = null;
+    if (mongoose.Types.ObjectId.isValid(productId)) {
+      product = await productRepository.findById(productId);
+    }
+    if (!product) {
+      product = await productRepository.findBySlug(productId);
+    }
     if (!product) throw ApiError.notFound("Product not found.");
 
-    if (!user.wishlist.some((id) => id.toString() === productId)) {
+    const targetIdStr = product._id.toString();
+    const exists = user.wishlist.some((id: any) => {
+      if (!id) return false;
+      const idStr = id._id ? id._id.toString() : id.toString();
+      return idStr === targetIdStr;
+    });
+
+    if (!exists) {
       user.wishlist.push(product._id);
       await user.save();
     }
     await user.populate("wishlist");
-    return user.wishlist;
+    return (user.wishlist || []).filter(Boolean);
   }
 
   public async removeFromWishlist(userId: string, productId: string): Promise<any> {
     const user = await userRepository.findById(userId);
     if (!user) throw ApiError.notFound("User not found.");
 
-    user.wishlist = user.wishlist.filter((id) => id.toString() !== productId);
+    let targetIdStr = productId;
+    let product = null;
+    if (mongoose.Types.ObjectId.isValid(productId)) {
+      product = await productRepository.findById(productId);
+    }
+    if (!product) {
+      product = await productRepository.findBySlug(productId);
+    }
+    if (product) {
+      targetIdStr = product._id.toString();
+    }
+
+    user.wishlist = (user.wishlist || []).filter((id: any) => {
+      if (!id) return false;
+      const rawId = id._id ? id._id.toString() : id.toString();
+      const slug = id.slug;
+      return rawId !== targetIdStr && rawId !== productId && slug !== productId;
+    });
+
     await user.save();
     await user.populate("wishlist");
-    return user.wishlist;
+    return (user.wishlist || []).filter(Boolean);
   }
 
   public async clearWishlist(userId: string): Promise<any> {

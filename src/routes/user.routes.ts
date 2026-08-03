@@ -26,7 +26,7 @@ router.put("/addresses/:id/default", authenticate, mongoIdParamValidator("id"), 
 // Wishlist CRUD
 router.get("/wishlist", authenticate, userController.getWishlist);
 router.post("/wishlist", authenticate, userController.addToWishlist);
-router.delete("/wishlist/:productId", authenticate, mongoIdParamValidator("productId"), validate, userController.removeFromWishlist);
+router.delete("/wishlist/:productId", authenticate, userController.removeFromWishlist);
 router.delete("/wishlist", authenticate, userController.clearWishlist);
 
 export default router;

@@ -47,7 +47,8 @@ export class UserController {
   });
 
   public addToWishlist = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const wishlist = await userService.addToWishlist(req.user!._id.toString(), req.body.productId);
+    const productId = req.body.productId || req.body.id || req.body._id;
+    const wishlist = await userService.addToWishlist(req.user!._id.toString(), productId);
     sendSuccess(res, "Item added to wishlist.", wishlist);
   });
 
