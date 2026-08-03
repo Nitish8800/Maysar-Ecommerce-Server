@@ -16,13 +16,14 @@ export class CartController {
   });
 
   public updateCartItem = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { quantity } = req.body;
-    const cart = await cartService.updateCartItem(req.user!._id.toString(), req.params.productId, quantity);
+    const { quantity, packIndex } = req.body;
+    const cart = await cartService.updateCartItem(req.user!._id.toString(), req.params.productId, quantity, packIndex);
     sendSuccess(res, "Cart item updated.", cart);
   });
 
   public removeCartItem = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const cart = await cartService.removeCartItem(req.user!._id.toString(), req.params.productId);
+    const packIndex = req.query.packIndex ? Number(req.query.packIndex) : undefined;
+    const cart = await cartService.removeCartItem(req.user!._id.toString(), req.params.productId, packIndex);
     sendSuccess(res, "Item removed from cart.", cart);
   });
 
