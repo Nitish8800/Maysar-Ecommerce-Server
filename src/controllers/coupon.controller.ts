@@ -16,8 +16,8 @@ export class CouponController {
 
   public validateCoupon = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { code, cartTotal } = req.body;
-    const coupon = await couponService.validateCoupon(code, Number(cartTotal));
-    sendSuccess(res, "Coupon is valid.", coupon);
+    const { coupon, discountAmount } = await couponService.validateCoupon(code, Number(cartTotal));
+    sendSuccess(res, "Coupon is valid.", { ...coupon.toObject(), discountAmount });
   });
 
   public updateCoupon = asyncHandler(async (req: Request, res: Response): Promise<void> => {
