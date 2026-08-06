@@ -37,6 +37,32 @@ export class PaymentController {
     const methods = await userService.deletePaymentMethod(req.user!._id.toString(), req.params.id);
     sendSuccess(res, "Payment method deleted.", methods);
   });
+
+  public createRazorpayOrder = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { orderId } = req.body;
+    const razorpayOrder = await paymentService.createRazorpayOrder(
+      req.user!._id.toString(),
+      orderId
+    );
+    sendCreated(res, "Razorpay order created successfully.", razorpayOrder);
+  });
+
+  public verifyRazorpayPayment = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { orderId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+    const result = await paymentService.verifyRazorpayPayment(
+      req.user!._id.toString(),
+      orderId,
+      razorpayOrderId,
+      razorpayPaymentId,
+      razorpaySignature
+    );
+    sendSuccess(res, "Razorpay payment verified successfully.", result);
+  });
+
+  public getRazorpayKey = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const keyData = paymentService.getRazorpayKey();
+    sendSuccess(res, "Razorpay key fetched.", keyData);
+  });
 }
 
 export const paymentController = new PaymentController();

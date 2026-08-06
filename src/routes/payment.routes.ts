@@ -16,4 +16,9 @@ router.get("/methods", paymentController.getPaymentMethods);
 router.post("/methods", paymentController.addPaymentMethod);
 router.delete("/methods/:id", mongoIdParamValidator("id"), validate, paymentController.deletePaymentMethod);
 
+// Razorpay Payment Routes
+router.post("/razorpay/create-order", paymentController.createRazorpayOrder);
+router.post("/razorpay/verify", paymentController.verifyRazorpayPayment);
+router.get("/razorpay/key", paymentController.getRazorpayKey);
+
 export default router;

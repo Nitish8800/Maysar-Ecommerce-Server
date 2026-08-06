@@ -105,10 +105,14 @@ export class OrderService {
       trackingNumber: `TRK-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
     });
 
-    // Clear cart
-    cart.items = [];
-    cart.grandTotal = 0;
-    await cart.save();
+    // Clear cart only for Cash on Delivery / Offline payments.
+    // For Razorpay / online payments, cart will be cleared upon successful payment verification.
+    const isOnlinePayment = ["UPI / Razorpay", "Credit Card", "Razorpay", "UPI", "Online"].includes(paymentMethod);
+    if (!isOnlinePayment) {
+      cart.items = [];
+      cart.grandTotal = 0;
+      await cart.save();
+    }
 
     return order;
   }
